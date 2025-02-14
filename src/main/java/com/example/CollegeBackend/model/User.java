@@ -1,5 +1,6 @@
 package com.example.CollegeBackend.model;
 
+
 public class User {
 
     private String name;
@@ -16,7 +17,6 @@ public class User {
         this.lastName = lastName;
         this.roll = roll;
     }
-
 
     public int getRoll() {
         return roll;

@@ -1,4 +1,4 @@
-package com.example.CollegeBackend;
+package com.example.CollegeBackend.Controller;
 
 import com.example.CollegeBackend.model.User;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,11 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
-
-
-
-
 @RestController
 @RequestMapping("/api") // Optional base path
 public class UserController {
@@ -23,7 +18,7 @@ public class UserController {
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
-    @GetMapping("/allusers")  // Route: http://localhost:8080/api/hello
+    @GetMapping("/allusers")  // Route: http://localhost:8080/api/allusers
     public List<User> sayHello() {
         Connection con = connect();
         System.out.println("Connected to database");
@@ -48,13 +43,14 @@ public class UserController {
             return users;
         }
         catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
             return users;
         }
     }
     public static void insertRecord(Connection conn, String firstName,String lastName, String address,long primaryContact) {
-        String sql = "INSERT INTO users (first_name,last_name,primary_contact,address) VALUES (?,?,?,?)";
+        String sql = "INSERT INTO users (first_name,last_name,primary_contact,address) values (?,?,?,?)";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             pstmt.setString(1, firstName);
             pstmt.setString(2, lastName);
             pstmt.setLong(3, primaryContact);
