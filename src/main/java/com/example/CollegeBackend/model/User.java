@@ -1,52 +1,39 @@
 package com.example.CollegeBackend.model;
 
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
 public class User {
 
-    private String name;
-    private int roll;
-    private  String firstName;
-    private  String lastName;
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    private int id;
+
+    @Setter
+    private String firstName;
+    @Setter
+    private String lastName;
+    @Setter
+    private  int roll;
+    @Setter
     private  String address;
-    private long primaryContact;
+    @Setter
+    private  long primaryContact;
 
-    public User( int roll,  String firstName, String lastName, String address, long primaryContact) {
-        this.address = address;
-        this.primaryContact = primaryContact;
+
+    public User(String firstName, String lastName, int roll, String address, long primaryContact) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.roll = roll;
-    }
-
-    public int getRoll() {
-        return roll;
-    }
-    public void setRoll(int roll) {
-        this.roll = roll;
-    }
-    public String getFirstName() {
-        return firstName;
-    }
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-    public String getLastName() {
-        return lastName;
-    }
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-    public String getAddress() {
-        return address;
-    }
-    public void setAddress(String address) {
         this.address = address;
-    }
-    public long getPrimaryContact() {
-        return primaryContact;
-    }
-    public void setPrimaryContact(long primaryContact) {
         this.primaryContact = primaryContact;
+        this.id = roll;
     }
 
 }

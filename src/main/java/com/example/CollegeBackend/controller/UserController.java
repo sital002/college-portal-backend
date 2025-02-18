@@ -1,4 +1,4 @@
-package com.example.CollegeBackend.Controller;
+package com.example.CollegeBackend.controller;
 
 import com.example.CollegeBackend.model.User;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,12 +34,11 @@ public class UserController {
                 String lastName = rs.getString("last_name");
                 String  address = rs.getString("address");
                 long  primaryContact  = rs.getLong("primary_contact");
-                users.add(new User(roll, firstName, lastName, address, primaryContact));
+                users.add(new User(firstName,lastName,roll,address,primaryContact));
             }
             rs.close();
             ps.close();
             con.close();
-            System.out.println(users);
             return users;
         }
         catch (Exception e) {
