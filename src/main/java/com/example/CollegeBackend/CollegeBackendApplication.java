@@ -3,9 +3,6 @@ package com.example.CollegeBackend;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 
 @SpringBootApplication
 public class CollegeBackendApplication {
@@ -17,13 +14,5 @@ public class CollegeBackendApplication {
 	public static void main(String[] args)  {
 		System.out.println("Server is running");
 		SpringApplication.run(CollegeBackendApplication.class, args);
-	}
-
-	public static Connection connect() {
-		try {
-			return DriverManager.getConnection(URL, USER, PASSWORD);
-		} catch (SQLException e) {
-			throw new RuntimeException("Error connecting to the database \n", e);
-		}
 	}
 }
