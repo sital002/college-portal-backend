@@ -19,15 +19,13 @@ public class User {
 
     private String firstName;
     private String lastName;
-    private  int roll;
     private  String address;
     private  long primaryContact;
 
 
-    public User(String firstName, String lastName, int roll, String address, long primaryContact) {
+    public User(String firstName, String lastName, String address, long primaryContact) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.roll = roll;
         this.address = address;
         this.primaryContact = primaryContact;
     }

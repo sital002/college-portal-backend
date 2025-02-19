@@ -24,6 +24,7 @@ dependencies {
 
 	// MySQL Driver (For MySQL)
 	runtimeOnly 'com.mysql:mysql-connector-j'
+
 	// Spring Boot Data JPA (Includes Jakarta Persistence API)
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
