@@ -1,8 +1,11 @@
 package com.example.CollegeBackend.controller;
 
 import com.example.CollegeBackend.model.User;
+import com.example.CollegeBackend.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.*;
@@ -18,6 +21,21 @@ public class UserController {
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
+    @Autowired
+    private UserRepository userRepository;
+
+
+    @GetMapping("/all")
+    public @ResponseBody Iterable<User> getAll() {
+        return userRepository.findAll();
+    }
+
+    @GetMapping("/new")
+    public @ResponseBody User newUser() {
+        User user = new User("Ramesh","Bhandari",40,"Tandi",988888887);
+        return userRepository.save(user);
+
+    }
     @GetMapping("/allusers")  // Route: http://localhost:8080/api/allusers
     public List<User> sayHello() {
         Connection con = connect();
@@ -62,21 +80,6 @@ public class UserController {
     }
 
 
-    @GetMapping("/user/new")
-    public String addUser() {
-        try {
-
-            Connection con = connect();
-            for (int i = 0; i < 10; i++) {
-                insertRecord(con, "Ram", "Gupta", "Ratnanagar", 988888888);
-            }
-            con.close();
-            return "Data added successfully";
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return "Error adding user";
-        }
-    }
 
     public static Connection connect() {
         try {

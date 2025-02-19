@@ -15,8 +15,6 @@ public class CollegeBackendApplication {
 
 
 	public static void main(String[] args)  {
-	  Connection conn = connect();
-	  System.out.println("Database connection established "+ conn);
 		System.out.println("Server is running");
 		SpringApplication.run(CollegeBackendApplication.class, args);
 	}

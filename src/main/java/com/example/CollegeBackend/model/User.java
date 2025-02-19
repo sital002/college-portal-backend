@@ -8,22 +8,19 @@ import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
 
+@Setter
 @Getter
+@Entity
 public class User {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
-    private int id;
+    private Long id;
 
-    @Setter
     private String firstName;
-    @Setter
     private String lastName;
-    @Setter
     private  int roll;
-    @Setter
     private  String address;
-    @Setter
     private  long primaryContact;
 
 
@@ -33,7 +30,9 @@ public class User {
         this.roll = roll;
         this.address = address;
         this.primaryContact = primaryContact;
-        this.id = roll;
     }
 
+    public User() {
+
+    }
 }
