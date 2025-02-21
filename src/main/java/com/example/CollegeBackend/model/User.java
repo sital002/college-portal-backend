@@ -19,15 +19,15 @@ public class User {
 
     private String firstName;
     private String lastName;
-    private  String address;
-    private  long primaryContact;
+    private String email;
+    private String password;
 
 
-    public User(String firstName, String lastName, String address, long primaryContact) {
+    public User(String firstName, String lastName, String email, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.address = address;
-        this.primaryContact = primaryContact;
+        this.email = email;
+        this.password = password;
     }
 
     public User() {

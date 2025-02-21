@@ -25,7 +25,7 @@ public class UserController {
 
     @GetMapping("/new")
     public @ResponseBody User newUser() {
-        User user = new User("Ramesh","Bhandari","Tandi",988888887);
+        User user = new User("Ramesh","Bhandari","Tandi","trset");
         return userRepository.save(user);
 
     }
