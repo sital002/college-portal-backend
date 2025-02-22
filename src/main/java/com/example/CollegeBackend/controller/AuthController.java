@@ -1,8 +1,8 @@
 package com.example.CollegeBackend.controller;
 
 import com.example.CollegeBackend.dto.SignUpRequest;
-import com.example.CollegeBackend.dto.model.ApiResponse;
-import com.example.CollegeBackend.dto.model.User;
+import com.example.CollegeBackend.dto.ApiResponse;
+import com.example.CollegeBackend.model.User;
 import com.example.CollegeBackend.repository.UserRepository;
 import com.example.CollegeBackend.utils.JwtUtil;
 import jakarta.servlet.http.Cookie;

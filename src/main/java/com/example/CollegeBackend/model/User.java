@@ -1,4 +1,4 @@
-package com.example.CollegeBackend.dto.model;
+package com.example.CollegeBackend.model;
 
 
 import jakarta.persistence.Entity;

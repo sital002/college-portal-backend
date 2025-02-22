@@ -1,4 +1,4 @@
-package com.example.CollegeBackend.dto.model;
+package com.example.CollegeBackend.dto;
 
 import lombok.Getter;
 import lombok.Setter;
