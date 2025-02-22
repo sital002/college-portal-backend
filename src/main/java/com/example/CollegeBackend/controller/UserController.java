@@ -1,6 +1,6 @@
 package com.example.CollegeBackend.controller;
 
-import com.example.CollegeBackend.model.User;
+import com.example.CollegeBackend.dto.model.User;
 import com.example.CollegeBackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

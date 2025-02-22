@@ -1,6 +1,6 @@
 package com.example.CollegeBackend.repository;
 
-import com.example.CollegeBackend.model.User;
+import com.example.CollegeBackend.dto.model.User;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

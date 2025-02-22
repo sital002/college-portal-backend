@@ -1,12 +1,10 @@
 package com.example.CollegeBackend.controller;
 
-import com.example.CollegeBackend.model.ApiResponse;
-import com.example.CollegeBackend.model.User;
+import com.example.CollegeBackend.dto.SignUpRequest;
+import com.example.CollegeBackend.dto.model.ApiResponse;
+import com.example.CollegeBackend.dto.model.User;
 import com.example.CollegeBackend.repository.UserRepository;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,21 +29,6 @@ public class AuthController {
     }
 }
 
-@Getter
-@Setter
-class SignUpRequest {
-    @NotBlank(message = "First name is required")
-    private String firstName;
 
-    @NotBlank(message = "Last name is required")
-    private String lastName;
 
-    @Email(message = "Invalid email format")
-    @NotBlank(message = "Email is required")
-    private String email;
-
-    @NotBlank(message = "Password cannot be empty")
-    @Size(min = 8, message = "Password must be at least 8 characters")
-    private String password;
-}
 

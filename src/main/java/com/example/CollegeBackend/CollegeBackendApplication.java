@@ -1,6 +1,5 @@
 package com.example.CollegeBackend;
 
-import com.example.CollegeBackend.model.ApiResponse;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.SpringApplication;
@@ -38,7 +37,6 @@ class GlobalExceptionHandler {
 		ApiError apiError = new ApiError(errorDetails);
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
 	}
-
 	@ExceptionHandler(IllegalArgumentException.class)
 	public ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException ex) {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiError(ex.getMessage()));
