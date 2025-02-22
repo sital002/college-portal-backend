@@ -28,6 +28,11 @@ dependencies {
 	// Spring Boot Data JPA (Includes Jakarta Persistence API)
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	// Jwt
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
 
 	// Jakarta Validation (For @Valid and @NotNull Annotations)
 	implementation("jakarta.validation:jakarta.validation-api:3.0.2")
