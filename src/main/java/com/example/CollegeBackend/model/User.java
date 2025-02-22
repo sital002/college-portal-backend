@@ -1,17 +1,18 @@
 package com.example.CollegeBackend.model;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.example.CollegeBackend.dto.Role;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.UniqueElements;
+
 
 @Setter
 @Getter
 @Entity
 public class User {
+
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -19,18 +20,23 @@ public class User {
 
     private String firstName;
     private String lastName;
+    @UniqueElements
     private String email;
     private String password;
+    private boolean emailVerified = false;
+    private String profilePicture;
+    private String phoneNumber;
 
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.STUDENT;
 
-    public User(String firstName, String lastName, String email, String password) {
+    public User(String firstName, String lastName, String email, String password , Role role) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
+        this.role = role;
     }
 
-    public User() {
-
-    }
+    public User() {}
 }

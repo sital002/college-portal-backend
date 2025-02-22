@@ -1,8 +1,6 @@
 package com.example.CollegeBackend.controller;
 
-import com.example.CollegeBackend.dto.LoginRequest;
-import com.example.CollegeBackend.dto.SignUpRequest;
-import com.example.CollegeBackend.dto.ApiResponse;
+import com.example.CollegeBackend.dto.*;
 import com.example.CollegeBackend.model.User;
 import com.example.CollegeBackend.repository.UserRepository;
 import com.example.CollegeBackend.utils.ApiError;
@@ -19,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -34,19 +33,19 @@ public class AuthController {
             }
             try{
             String hashedPassword = PasswordHasher.hashPassword(request.getPassword());
-            User user = new User(request.getFirstName(), request.getLastName(), request.getEmail(), hashedPassword);
+            User user = new User(request.getFirstName(), request.getLastName(), request.getEmail(), hashedPassword, Role.STUDENT);
             User newUser =   userRepository.save(user);
-            String  accessToken=  JwtUtil.generateToken(newUser.getEmail());
-            String  refreshToken=  JwtUtil.generateToken(newUser.getEmail());
+                JwtPayload payload = new JwtPayload(newUser.getEmail(),newUser.getRole());
+
+            String  accessToken=  JwtUtil.generateToken(payload);
+            String  refreshToken=  JwtUtil.generateToken(payload);
             Cookie access_cookie = generateCookie("access_token", accessToken);
-
-
-        Cookie refresh_cookie = generateCookie("refresh_token", refreshToken);
-        response.addCookie(access_cookie);
-        response.addCookie(refresh_cookie);
-                HashMap<String, Object> token =  new HashMap<>();
-                token.put("access_token", accessToken);
-                token.put("refresh_token", refreshToken);
+            Cookie refresh_cookie = generateCookie("refresh_token", refreshToken);
+            response.addCookie(access_cookie);
+            response.addCookie(refresh_cookie);
+            HashMap<String, Object> token =  new HashMap<>();
+            token.put("access_token", accessToken);
+            token.put("refresh_token", refreshToken);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new ApiResponse(true, "User registered successfully",token));
             }
@@ -66,8 +65,11 @@ public class AuthController {
             throw new ApiError(HttpStatus.NOT_FOUND, "Invalid email or password");
 
         }
-            String accessToken =  JwtUtil.generateToken(userExists.getEmail());
-            String refreshToken =  JwtUtil.generateToken(userExists.getEmail());
+            Map<String,Object> data = Map.of("email",userExists.getEmail(),"role",userExists.getRole());
+            JwtPayload payload = new JwtPayload(userExists.getEmail(),userExists.getRole());
+
+            String accessToken =  JwtUtil.generateToken(payload);
+            String refreshToken =  JwtUtil.generateToken(payload);
             Cookie access_cookie = generateCookie("access_token", accessToken);
             Cookie refresh_cookie = generateCookie("refresh_token", refreshToken);
             response.addCookie(access_cookie);
@@ -83,6 +85,19 @@ public class AuthController {
             throw new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Error while hashing password");
         }
     }
+
+    @GetMapping("/verify-token")
+    public ResponseEntity<ApiResponse> me(@CookieValue String access_token ,@CookieValue String refresh_token) {
+        if(access_token == null || refresh_token == null){
+            throw new ApiError(HttpStatus.NOT_FOUND, "Invalid access token");
+        }
+        JwtPayload isValidToken = JwtUtil.parseToken(access_token);
+        if(isValidToken == null ){
+            throw new ApiError(HttpStatus.NOT_FOUND, "Invalid access token");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, "You are logged in as " + isValidToken.getEmail() + "  " + isValidToken.getRole(),isValidToken));
+    }
+
     public  static Cookie  generateCookie(String name, String value){
         Cookie cookie =  new Cookie(name, value);
         cookie.setMaxAge(60 * 60 * 24);
@@ -92,6 +107,7 @@ public class AuthController {
         return cookie;
     }
 }
+
 
 
 

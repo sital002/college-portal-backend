@@ -23,12 +23,6 @@ public class UserController {
         return userRepository.findAll();
     }
 
-    @GetMapping("/new")
-    public @ResponseBody User newUser() {
-        User user = new User("Ramesh","Bhandari","Tandi","trset");
-        return userRepository.save(user);
-
-    }
 
 }
 

@@ -1,7 +1,6 @@
 package com.example.CollegeBackend;
 
 import com.example.CollegeBackend.utils.ApiError;
-import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.SpringApplication;
