@@ -1,5 +1,7 @@
 package com.example.CollegeBackend;
 
+import com.example.CollegeBackend.utils.ApiError;
+import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.SpringApplication;
@@ -25,8 +27,14 @@ public class CollegeBackendApplication {
 @RestControllerAdvice
 class GlobalExceptionHandler {
 
+	@ExceptionHandler(ApiError.class)
+	public ResponseEntity<ApiErrorResponse> handleApiError(ApiError ex) {
+		ApiErrorResponse errorResponse = new ApiErrorResponse(ex.getMessage());
+		return  ResponseEntity.status(ex.getStatus()).body(errorResponse);
+	}
+
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<ApiError> handleValidationExceptions(MethodArgumentNotValidException ex) {
+	public ResponseEntity<ApiErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
 		Map<String, String> errorDetails = new HashMap<>();
 		ex.getBindingResult().getAllErrors().forEach(error -> {
 			String fieldName = ((FieldError) error).getField();
@@ -34,26 +42,26 @@ class GlobalExceptionHandler {
 			errorDetails.put(fieldName, errorMessage);
 		});
 
-		ApiError apiError = new ApiError(errorDetails);
+		ApiErrorResponse apiError = new ApiErrorResponse(errorDetails);
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
 	}
 	@ExceptionHandler(IllegalArgumentException.class)
-	public ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException ex) {
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiError(ex.getMessage()));
+	public ResponseEntity<ApiErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiErrorResponse(ex.getMessage()));
 	}
 	@ExceptionHandler(Exception.class)
-	public ResponseEntity<ApiError> handleException(Exception ex) {
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiError(ex.getMessage()));
+	public ResponseEntity<ApiErrorResponse> handleException(Exception ex) {
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiErrorResponse(ex.getMessage()));
 	}
 
 }
 
 @Getter
 @Setter
-class ApiError {
+class ApiErrorResponse {
 	private Object error;
 	private boolean success;
-	public ApiError(Object error) {
+	public ApiErrorResponse(Object error) {
 		this.error = error;
 		this.success = false;
 	}
