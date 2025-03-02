@@ -3,7 +3,6 @@ package com.example.CollegeBackend.utils;
 import com.example.CollegeBackend.dto.JwtPayload;
 import com.example.CollegeBackend.dto.Role;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -38,7 +37,7 @@ public class JwtUtil {
         try{
             JwtParser parser = Jwts.parser().verifyWith((SecretKey) SECRET_KEY).build();
             Claims claims = parser.parseSignedClaims(token).getPayload();
-            String email = claims.get("email", String.class);
+            String email = claims.get("email",String.class);
             String roleString = claims.get("role", String.class);
             Role role = Role.valueOf(roleString);
             return new JwtPayload(email, role);

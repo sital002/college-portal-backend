@@ -17,10 +17,9 @@ import org.springframework.web.bind.annotation.*;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
-import java.util.Map;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/v1/auth")
 public class AuthController {
 
     @Autowired
@@ -63,9 +62,8 @@ public class AuthController {
         boolean isPasswordMatched =  PasswordHasher.verifyPassword(request.getPassword(),userExists.getPassword());
         if(!isPasswordMatched){
             throw new ApiError(HttpStatus.NOT_FOUND, "Invalid email or password");
-
         }
-            Map<String,Object> data = Map.of("email",userExists.getEmail(),"role",userExists.getRole());
+        System.out.println(userExists.getEmail()+ " "+userExists.getRole());
             JwtPayload payload = new JwtPayload(userExists.getEmail(),userExists.getRole());
 
             String accessToken =  JwtUtil.generateToken(payload);
@@ -87,15 +85,29 @@ public class AuthController {
     }
 
     @GetMapping("/verify-token")
-    public ResponseEntity<ApiResponse> me(@CookieValue String access_token ,@CookieValue String refresh_token) {
+    public ResponseEntity<ApiResponse> verifyToken(@CookieValue String access_token ,@CookieValue String refresh_token) {
         if(access_token == null || refresh_token == null){
-            throw new ApiError(HttpStatus.NOT_FOUND, "Invalid access token");
+            throw new ApiError(HttpStatus.NOT_FOUND, "Token isn't provided");
         }
         JwtPayload isValidToken = JwtUtil.parseToken(access_token);
         if(isValidToken == null ){
             throw new ApiError(HttpStatus.NOT_FOUND, "Invalid access token");
         }
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, "You are logged in as " + isValidToken.getEmail() + "  " + isValidToken.getRole(),isValidToken));
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, "Token verified successfully",isValidToken));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse> me(@CookieValue String access_token,@CookieValue String refresh_token) {
+        if(access_token == null || refresh_token == null){
+            throw new ApiError(HttpStatus.NOT_FOUND, "Token isn't provided");
+        }
+        JwtPayload isValidToken = JwtUtil.parseToken(access_token);
+        if(isValidToken == null ){
+            throw new ApiError(HttpStatus.NOT_FOUND, "Invalid access token");
+        }
+        User user =  userRepository.findByEmail(isValidToken.getEmail());
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(user));
+
     }
 
     public  static Cookie  generateCookie(String name, String value){
@@ -106,6 +118,7 @@ public class AuthController {
         cookie.setPath("/");
         return cookie;
     }
+
 }
 
 

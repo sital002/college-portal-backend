@@ -2,10 +2,10 @@ package com.example.CollegeBackend.model;
 
 
 import com.example.CollegeBackend.dto.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.UniqueElements;
 
 
 @Setter
@@ -20,8 +20,8 @@ public class User {
 
     private String firstName;
     private String lastName;
-    @UniqueElements
     private String email;
+    @JsonIgnore
     private String password;
     private boolean emailVerified = false;
     private String profilePicture;

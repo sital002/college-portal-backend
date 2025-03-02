@@ -9,17 +9,18 @@ public class ApiResponse {
     private boolean success;
     private String message;
     private Object data;
-
-    public ApiResponse(boolean success, String message) {
-        this.success = success;
-        this.message = message;
-        this.data = null;
-    }
-
     public ApiResponse( boolean success ,String message,Object data) {
         this.success = success;
         this.message = message;
         this.data = data;
+    }
+    public ApiResponse(Object data) {
+        this.success = true;
+        this.data = data;
+    }
+    public ApiResponse(String message) {
+        this.success = true;
+        this.message = message;
     }
 
 }
