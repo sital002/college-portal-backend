@@ -15,21 +15,21 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashMap;
 import java.util.Map;
 
-
 @SpringBootApplication
 public class CollegeBackendApplication {
-	public static void main(String[] args)  {
+	public static void main(String[] args) {
 		System.out.println("Server is running");
 		SpringApplication.run(CollegeBackendApplication.class, args);
 	}
 }
+
 @RestControllerAdvice
 class GlobalExceptionHandler {
 
 	@ExceptionHandler(ApiError.class)
 	public ResponseEntity<ApiErrorResponse> handleApiError(ApiError ex) {
 		ApiErrorResponse errorResponse = new ApiErrorResponse(ex.getMessage());
-		return  ResponseEntity.status(ex.getStatus()).body(errorResponse);
+		return ResponseEntity.status(ex.getStatus()).body(errorResponse);
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
@@ -44,10 +44,12 @@ class GlobalExceptionHandler {
 		ApiErrorResponse apiError = new ApiErrorResponse(errorDetails);
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
 	}
+
 	@ExceptionHandler(IllegalArgumentException.class)
 	public ResponseEntity<ApiErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiErrorResponse(ex.getMessage()));
 	}
+
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ApiErrorResponse> handleException(Exception ex) {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiErrorResponse(ex.getMessage()));
@@ -60,6 +62,7 @@ class GlobalExceptionHandler {
 class ApiErrorResponse {
 	private Object error;
 	private boolean success;
+
 	public ApiErrorResponse(Object error) {
 		this.error = error;
 		this.success = false;
