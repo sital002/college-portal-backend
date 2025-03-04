@@ -14,8 +14,8 @@ public class Config {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOriginPatterns("http://localhost:3000", "http://localhost:8081") // Add your app's
-                                                                                                 // origin if different
+                        .allowedOriginPatterns("http://localhost:3000", "http://localhost:8081",
+                                "http://localhost:5173")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);

@@ -7,6 +7,7 @@ import com.example.CollegeBackend.utils.ApiError;
 import com.example.CollegeBackend.utils.JwtUtil;
 import com.example.CollegeBackend.utils.PasswordHasher;
 import jakarta.servlet.http.Cookie;
+import org.springframework.http.ResponseCookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,103 +27,98 @@ public class AuthController {
     private UserRepository userRepository;
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse> signUp(@Valid @RequestBody SignUpRequest request, HttpServletResponse response)  {
-            if (userRepository.findByEmail(request.getEmail()) != null) {
-                throw new ApiError(HttpStatus.BAD_REQUEST, "Email already exists");
-            }
-            try{
+    public ResponseEntity<ApiResponse> signUp(@Valid @RequestBody SignUpRequest request, HttpServletResponse response) {
+        if (userRepository.findByEmail(request.getEmail()) != null) {
+            throw new ApiError(HttpStatus.BAD_REQUEST, "Email already exists");
+        }
+        try {
             String hashedPassword = PasswordHasher.hashPassword(request.getPassword());
-            User user = new User(request.getFirstName(), request.getLastName(), request.getEmail(), hashedPassword, Role.STUDENT);
-            User newUser =   userRepository.save(user);
-                JwtPayload payload = new JwtPayload(newUser.getEmail(),newUser.getRole());
+            User user = new User(request.getFirstName(), request.getLastName(), request.getEmail(), hashedPassword,
+                    Role.STUDENT);
+            User newUser = userRepository.save(user);
+            JwtPayload payload = new JwtPayload(newUser.getEmail(), newUser.getRole());
 
-            String  accessToken=  JwtUtil.generateToken(payload);
-            String  refreshToken=  JwtUtil.generateToken(payload);
-            Cookie access_cookie = generateCookie("access_token", accessToken);
-            Cookie refresh_cookie = generateCookie("refresh_token", refreshToken);
-            response.addCookie(access_cookie);
-            response.addCookie(refresh_cookie);
-            HashMap<String, Object> token =  new HashMap<>();
+            String accessToken = JwtUtil.generateToken(payload);
+            String refreshToken = JwtUtil.generateToken(payload);
+            ResponseCookie access_cookie = generateCookie("access_token", accessToken);
+            ResponseCookie refresh_cookie = generateCookie("refresh_token", refreshToken);
+            response.addHeader("Set-Cookie", access_cookie.toString());
+            response.addHeader("Set-Cookie", refresh_cookie.toString());
+            HashMap<String, Object> token = new HashMap<>();
             token.put("access_token", accessToken);
             token.put("refresh_token", refreshToken);
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new ApiResponse(true, "User registered successfully",token));
-            }
-            catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-                throw new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Error while hashing password");
-            }
+                    .body(new ApiResponse(true, "User registered successfully", token));
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Error while hashing password");
+        }
     }
+
     @PostMapping("/signin")
-    public  ResponseEntity<ApiResponse> signIn(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
+    public ResponseEntity<ApiResponse> signIn(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
         User userExists = userRepository.findByEmail(request.getEmail());
-        if(userExists == null){
+        if (userExists == null) {
             throw new ApiError(HttpStatus.NOT_FOUND, "Invalid email or password");
         }
-        try{
-        boolean isPasswordMatched =  PasswordHasher.verifyPassword(request.getPassword(),userExists.getPassword());
-        if(!isPasswordMatched){
-            throw new ApiError(HttpStatus.NOT_FOUND, "Invalid email or password");
-        }
-        System.out.println(userExists.getEmail()+ " "+userExists.getRole());
-            JwtPayload payload = new JwtPayload(userExists.getEmail(),userExists.getRole());
+        try {
+            boolean isPasswordMatched = PasswordHasher.verifyPassword(request.getPassword(), userExists.getPassword());
+            if (!isPasswordMatched) {
+                throw new ApiError(HttpStatus.NOT_FOUND, "Invalid email or password");
+            }
+            System.out.println(userExists.getEmail() + " " + userExists.getRole());
+            JwtPayload payload = new JwtPayload(userExists.getEmail(), userExists.getRole());
 
-            String accessToken =  JwtUtil.generateToken(payload);
-            String refreshToken =  JwtUtil.generateToken(payload);
-            Cookie access_cookie = generateCookie("access_token", accessToken);
-            Cookie refresh_cookie = generateCookie("refresh_token", refreshToken);
-            response.addCookie(access_cookie);
-            response.addCookie(refresh_cookie);
+            String accessToken = JwtUtil.generateToken(payload);
+            String refreshToken = JwtUtil.generateToken(payload);
+            ResponseCookie access_cookie = generateCookie("access_token", accessToken);
+            ResponseCookie refresh_cookie = generateCookie("refresh_token", refreshToken);
+            response.addHeader("Set-Cookie", access_cookie.toString());
+            response.addHeader("Set-Cookie", refresh_cookie.toString());
 
-            HashMap<String, Object> token =  new HashMap<>();
+            HashMap<String, Object> token = new HashMap<>();
             token.put("access_token", accessToken);
             token.put("refresh_token", refreshToken);
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(new ApiResponse(true, "Login successfully",token));
-        }
-        catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                    .body(new ApiResponse(true, "Login successfully", token));
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             throw new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Error while hashing password");
         }
     }
 
     @GetMapping("/verify-token")
-    public ResponseEntity<ApiResponse> verifyToken(@CookieValue String access_token ,@CookieValue String refresh_token) {
-        if(access_token == null || refresh_token == null){
+    public ResponseEntity<ApiResponse> verifyToken(@CookieValue String access_token,
+            @CookieValue String refresh_token) {
+        if (access_token == null || refresh_token == null) {
             throw new ApiError(HttpStatus.NOT_FOUND, "Token isn't provided");
         }
         JwtPayload isValidToken = JwtUtil.parseToken(access_token);
-        if(isValidToken == null ){
+        if (isValidToken == null) {
             throw new ApiError(HttpStatus.NOT_FOUND, "Invalid access token");
         }
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, "Token verified successfully",isValidToken));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ApiResponse(true, "Token verified successfully", isValidToken));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse> me(@CookieValue String access_token,@CookieValue String refresh_token) {
-        if(access_token == null || refresh_token == null){
+    public ResponseEntity<ApiResponse> me(@CookieValue String access_token, @CookieValue String refresh_token) {
+        if (access_token == null || refresh_token == null) {
             throw new ApiError(HttpStatus.NOT_FOUND, "Token isn't provided");
         }
         JwtPayload isValidToken = JwtUtil.parseToken(access_token);
-        if(isValidToken == null ){
+        if (isValidToken == null) {
             throw new ApiError(HttpStatus.NOT_FOUND, "Invalid access token");
         }
-        User user =  userRepository.findByEmail(isValidToken.getEmail());
+        User user = userRepository.findByEmail(isValidToken.getEmail());
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(user));
 
     }
 
-    public  static Cookie  generateCookie(String name, String value){
-        Cookie cookie =  new Cookie(name, value);
-        cookie.setMaxAge(60 * 60 * 24);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        return cookie;
+    public static ResponseCookie generateCookie(String name, String value) {
+        return ResponseCookie.from(name, value)
+                .maxAge(60 * 60 * 24)
+                .httpOnly(true)
+                .secure(true).sameSite("Lax")
+                .path("/")
+                .build();
     }
-
 }
-
-
-
-
-
-
