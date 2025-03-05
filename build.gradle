@@ -49,6 +49,8 @@ dependencies {
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
 	// Spring Boot Starter Test (JUnit & Mockito)
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.mockito:mockito-core'
+
 }
 
 tasks.named('test') {

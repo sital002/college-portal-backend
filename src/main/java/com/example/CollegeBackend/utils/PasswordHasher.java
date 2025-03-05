@@ -7,20 +7,21 @@ import java.util.Base64;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
-public  class PasswordHasher {
+public class PasswordHasher {
 
     private static final int SALT_LENGTH = 16;
     private static final int HASH_LENGTH = 64;
     private static final int ITERATIONS = 10000;
 
-    public static String hashPassword(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public String hashPassword(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
         byte[] salt = generateSalt();
         byte[] hash = hashPasswordWithSalt(password, salt);
 
         return Base64.getEncoder().encodeToString(salt) + ":" + Base64.getEncoder().encodeToString(hash);
     }
 
-    public static boolean verifyPassword(String password, String storedHash) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public boolean verifyPassword(String password, String storedHash)
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
         String[] parts = storedHash.split(":");
         if (parts.length != 2) {
             throw new IllegalArgumentException("Invalid stored hash format.");
@@ -40,7 +41,8 @@ public  class PasswordHasher {
         return salt;
     }
 
-    private static byte[] hashPasswordWithSalt(String password, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    private static byte[] hashPasswordWithSalt(String password, byte[] salt)
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
         PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, ITERATIONS, HASH_LENGTH * 8);
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
         return factory.generateSecret(spec).getEncoded();

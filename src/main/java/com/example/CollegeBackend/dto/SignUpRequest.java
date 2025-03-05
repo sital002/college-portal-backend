@@ -22,4 +22,14 @@ public class SignUpRequest {
     @NotBlank(message = "Password cannot be empty")
     @Size(min = 8, message = "Password must be at least 8 characters")
     private String password;
+
+    public SignUpRequest() {
+    }
+
+    public SignUpRequest(String firstName, String lastName, String email, String password) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+    }
 }

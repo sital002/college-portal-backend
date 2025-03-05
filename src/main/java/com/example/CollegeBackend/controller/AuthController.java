@@ -6,7 +6,6 @@ import com.example.CollegeBackend.repository.UserRepository;
 import com.example.CollegeBackend.utils.ApiError;
 import com.example.CollegeBackend.utils.JwtUtil;
 import com.example.CollegeBackend.utils.PasswordHasher;
-import jakarta.servlet.http.Cookie;
 import org.springframework.http.ResponseCookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -26,13 +25,16 @@ public class AuthController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordHasher passwordHasher;
+
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse> signUp(@Valid @RequestBody SignUpRequest request, HttpServletResponse response) {
         if (userRepository.findByEmail(request.getEmail()) != null) {
             throw new ApiError(HttpStatus.BAD_REQUEST, "Email already exists");
         }
         try {
-            String hashedPassword = PasswordHasher.hashPassword(request.getPassword());
+            String hashedPassword = passwordHasher.hashPassword(request.getPassword());
             User user = new User(request.getFirstName(), request.getLastName(), request.getEmail(), hashedPassword,
                     Role.STUDENT);
             User newUser = userRepository.save(user);
@@ -61,7 +63,7 @@ public class AuthController {
             throw new ApiError(HttpStatus.NOT_FOUND, "Invalid email or password");
         }
         try {
-            boolean isPasswordMatched = PasswordHasher.verifyPassword(request.getPassword(), userExists.getPassword());
+            boolean isPasswordMatched = passwordHasher.verifyPassword(request.getPassword(), userExists.getPassword());
             if (!isPasswordMatched) {
                 throw new ApiError(HttpStatus.NOT_FOUND, "Invalid email or password");
             }
