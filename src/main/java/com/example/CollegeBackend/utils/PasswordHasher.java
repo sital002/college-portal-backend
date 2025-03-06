@@ -13,14 +13,14 @@ public class PasswordHasher {
     private static final int HASH_LENGTH = 64;
     private static final int ITERATIONS = 10000;
 
-    public String hashPassword(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public static String hashPassword(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
         byte[] salt = generateSalt();
         byte[] hash = hashPasswordWithSalt(password, salt);
 
         return Base64.getEncoder().encodeToString(salt) + ":" + Base64.getEncoder().encodeToString(hash);
     }
 
-    public boolean verifyPassword(String password, String storedHash)
+     public static boolean verifyPassword(String password, String storedHash)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
         String[] parts = storedHash.split(":");
         if (parts.length != 2) {

@@ -27,11 +27,12 @@ public class UserController {
     }
 
     @PostMapping("/update")
-    public  ResponseEntity<ApiResponse> updateDetail(@Valid @RequestBody User request, @CookieValue String access_token , @CookieValue String refresh_token) {
-        if(access_token == null && refresh_token == null) {
-            throw new ApiError(HttpStatus.BAD_REQUEST,"Access token and refresh token are both required");
-        }
+    public  ResponseEntity<ApiResponse> updateDetail(@Valid @RequestBody User request, @CookieValue String access_token ,@RequestHeader("Authorization") String authorizationHeader) {
+
+      authorizationHeader = authorizationHeader.replace("Bearer ", "");
+      access_token = !(access_token == null) ? access_token :  authorizationHeader;
         JwtPayload isValidToken = JwtUtil.parseToken(access_token);
+
         if(isValidToken == null ){
             throw new ApiError(HttpStatus.NOT_FOUND, "Invalid access token");
         }

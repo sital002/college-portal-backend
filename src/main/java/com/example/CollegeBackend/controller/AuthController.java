@@ -25,8 +25,8 @@ public class AuthController {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private PasswordHasher passwordHasher;
+
+
 
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse> signUp(@Valid @RequestBody SignUpRequest request, HttpServletResponse response) {
@@ -34,7 +34,7 @@ public class AuthController {
             throw new ApiError(HttpStatus.BAD_REQUEST, "Email already exists");
         }
         try {
-            String hashedPassword = passwordHasher.hashPassword(request.getPassword());
+            String hashedPassword = PasswordHasher.hashPassword(request.getPassword());
             User user = new User(request.getFirstName(), request.getLastName(), request.getEmail(), hashedPassword,
                     Role.STUDENT);
             User newUser = userRepository.save(user);
@@ -63,7 +63,7 @@ public class AuthController {
             throw new ApiError(HttpStatus.NOT_FOUND, "Invalid email or password");
         }
         try {
-            boolean isPasswordMatched = passwordHasher.verifyPassword(request.getPassword(), userExists.getPassword());
+            boolean isPasswordMatched = PasswordHasher.verifyPassword(request.getPassword(), userExists.getPassword());
             if (!isPasswordMatched) {
                 throw new ApiError(HttpStatus.NOT_FOUND, "Invalid email or password");
             }
@@ -102,10 +102,10 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse> me(@CookieValue String access_token, @CookieValue String refresh_token) {
-        if (access_token == null || refresh_token == null) {
-            throw new ApiError(HttpStatus.NOT_FOUND, "Token isn't provided");
-        }
+    public ResponseEntity<ApiResponse> me(@CookieValue String access_token,@RequestHeader("Authorization") String authorizationHeader) {
+
+        authorizationHeader = authorizationHeader.replace("Bearer ", "");
+        access_token = !(access_token == null) ? access_token :  authorizationHeader;
         JwtPayload isValidToken = JwtUtil.parseToken(access_token);
         if (isValidToken == null) {
             throw new ApiError(HttpStatus.NOT_FOUND, "Invalid access token");
