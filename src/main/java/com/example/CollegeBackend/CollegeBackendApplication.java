@@ -21,6 +21,7 @@ public class CollegeBackendApplication {
 		System.out.println("Server is running");
 		SpringApplication.run(CollegeBackendApplication.class, args);
 	}
+
 }
 
 @RestControllerAdvice

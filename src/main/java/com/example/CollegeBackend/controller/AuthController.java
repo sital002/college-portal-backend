@@ -7,6 +7,8 @@ import com.example.CollegeBackend.utils.ApiError;
 import com.example.CollegeBackend.utils.JwtUtil;
 import com.example.CollegeBackend.utils.PasswordHasher;
 import org.springframework.http.ResponseCookie;
+
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +26,6 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
-
-
-
 
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse> signUp(@Valid @RequestBody SignUpRequest request, HttpServletResponse response) {
@@ -102,15 +101,14 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse> me(@RequestHeader("Authorization") String authorizationHeader) {
-
-        authorizationHeader = authorizationHeader.replace("Bearer ", "");
-        System.out.println(authorizationHeader);
-        JwtPayload isValidToken = JwtUtil.parseToken(authorizationHeader);
-        if (isValidToken == null) {
-            throw new ApiError(HttpStatus.NOT_FOUND, "Invalid access token");
+    public ResponseEntity<ApiResponse> me(HttpServletRequest request) {
+        JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
+        System.out.println(jwtPayload);
+        if (jwtPayload == null) {
+            throw new ApiError(HttpStatus.UNAUTHORIZED, "Access token is missing okay");
         }
-        User user = userRepository.findByEmail(isValidToken.getEmail());
+
+        User user = userRepository.findByEmail(jwtPayload.getEmail());
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(user));
 
     }
