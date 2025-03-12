@@ -39,8 +39,9 @@ public class JwtUtil {
             Claims claims = parser.parseSignedClaims(token).getPayload();
             String email = claims.get("email",String.class);
             String roleString = claims.get("role", String.class);
+            Long id = claims.get("id", Long.class);
             Role role = Role.valueOf(roleString);
-            return new JwtPayload(email, role);
+            return new JwtPayload(email, role,id);
         }catch (Exception e){
             return null;
         }

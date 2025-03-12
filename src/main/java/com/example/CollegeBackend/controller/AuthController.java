@@ -37,7 +37,7 @@ public class AuthController {
             User user = new User(request.getFirstName(), request.getLastName(), request.getEmail(), hashedPassword,
                     Role.STUDENT);
             User newUser = userRepository.save(user);
-            JwtPayload payload = new JwtPayload(newUser.getEmail(), newUser.getRole());
+            JwtPayload payload = new JwtPayload(newUser.getEmail(), newUser.getRole(), newUser.getId());
 
             String accessToken = JwtUtil.generateToken(payload);
             String refreshToken = JwtUtil.generateToken(payload);
@@ -67,7 +67,7 @@ public class AuthController {
                 throw new ApiError(HttpStatus.NOT_FOUND, "Invalid email or password");
             }
             System.out.println(userExists.getEmail() + " " + userExists.getRole());
-            JwtPayload payload = new JwtPayload(userExists.getEmail(), userExists.getRole());
+            JwtPayload payload = new JwtPayload(userExists.getEmail(), userExists.getRole(),userExists.getId());
 
             String accessToken = JwtUtil.generateToken(payload);
             String refreshToken = JwtUtil.generateToken(payload);

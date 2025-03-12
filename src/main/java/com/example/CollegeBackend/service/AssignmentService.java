@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.nio.file.StandardCopyOption;
 
 @Service
@@ -21,6 +22,7 @@ public class AssignmentService {
     private AssignmentRepository assignmentRepository;
 
     private final String uploadDir = "uploads/";
+
 
     public String saveFile(MultipartFile file) throws IOException {
         Path uploadPath = Paths.get(uploadDir);
@@ -37,5 +39,9 @@ public class AssignmentService {
 
     public Assignment createAssignment(Assignment assignment) {
         return assignmentRepository.save(assignment);
+    }
+
+    public List<Assignment> viewAssignments(Long teacherId) {
+        return assignmentRepository.findByTeacherId(teacherId);
     }
 }
