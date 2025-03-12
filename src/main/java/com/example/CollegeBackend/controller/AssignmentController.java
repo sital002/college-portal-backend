@@ -51,8 +51,7 @@ public class AssignmentController {
         }
         try {
             String filePath = assignmentService.saveFile(file);
-            Assignment newAssignment = new Assignment(title, description, deadLine, room, filePath);
-            Assignment createdAssignment = assignmentService.createAssignment(newAssignment);
+            Assignment createdAssignment = assignmentService.createAssignment(new Assignment(title,description,deadLine,filePath,room));
             return ResponseEntity.ok(new ApiResponse(createdAssignment));
         } catch (Exception e) {
             throw new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Error while creating assignment: " + e.getMessage());
