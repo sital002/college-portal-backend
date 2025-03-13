@@ -35,7 +35,7 @@ public class AuthController {
         try {
             String hashedPassword = PasswordHasher.hashPassword(request.getPassword());
             User user = new User(request.getFirstName(), request.getLastName(), request.getEmail(), hashedPassword,
-                    Role.STUDENT);
+                    request.getRole());
             User newUser = userRepository.save(user);
             JwtPayload payload = new JwtPayload(newUser.getEmail(), newUser.getRole(), newUser.getId());
 
@@ -68,7 +68,6 @@ public class AuthController {
             }
             System.out.println(userExists.getEmail() + " " + userExists.getRole());
             JwtPayload payload = new JwtPayload(userExists.getEmail(), userExists.getRole(),userExists.getId());
-
             String accessToken = JwtUtil.generateToken(payload);
             String refreshToken = JwtUtil.generateToken(payload);
             ResponseCookie access_cookie = generateCookie("access_token", accessToken);

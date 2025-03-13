@@ -26,6 +26,7 @@ public class JwtUtil {
         Map<String, Object> claims = new HashMap<>();
         claims.put("email", payload.getEmail());
         claims.put("role", payload.getRole().name());
+        claims.put("id", payload.getId());
 
 
         return Jwts.builder().claims(claims).issuedAt(new Date()).expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 10))

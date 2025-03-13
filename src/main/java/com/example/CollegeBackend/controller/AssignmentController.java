@@ -87,14 +87,15 @@ public class AssignmentController {
         }
     }
 
-    @GetMapping("/view/{teacherId:.+}")
-    public ResponseEntity<ApiResponse> viewAssignments(HttpServletRequest request, @PathVariable Long teacherId) {
+    @GetMapping("/view" )
+    public ResponseEntity<ApiResponse> viewAssignments(HttpServletRequest request) {
         JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
         if (jwtPayload == null) {
             throw new ApiError(HttpStatus.UNAUTHORIZED, "Access token is missing");
         }
+        System.out.println(jwtPayload.getId());
         try {
-            return ResponseEntity.ok(new ApiResponse(assignmentService.viewAssignments(teacherId)));
+            return ResponseEntity.ok(new ApiResponse(assignmentService.viewAssignments(jwtPayload.getId())));
         } catch (Exception e) {
             throw new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Error while fetching assignments: " + e.getMessage());
         }
