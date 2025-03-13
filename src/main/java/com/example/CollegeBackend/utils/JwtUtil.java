@@ -28,7 +28,7 @@ public class JwtUtil {
         claims.put("role", payload.getRole().name());
 
 
-        return Jwts.builder().claims(claims).issuedAt(new Date()).expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+        return Jwts.builder().claims(claims).issuedAt(new Date()).expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 10))
                 .signWith(SECRET_KEY)
                 .compact();
     }

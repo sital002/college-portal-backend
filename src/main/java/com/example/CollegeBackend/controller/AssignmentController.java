@@ -1,6 +1,7 @@
 package com.example.CollegeBackend.controller;
 
 import com.example.CollegeBackend.dto.Role;
+import com.example.CollegeBackend.repository.AssignmentRepository;
 import com.example.CollegeBackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,6 +39,8 @@ public class AssignmentController {
     private AssignmentService assignmentService;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private AssignmentRepository assignmentRepository;
 
     @PostMapping("/upload")
     public ResponseEntity<ApiResponse> uploadAssignment(HttpServletRequest request,
@@ -70,7 +73,7 @@ public class AssignmentController {
 
         Role userRole = user.getRole();
         System.out.println(userRole);
-        if (userRole.name().equals("STUDENT")) {
+        if (userRole.equals(Role.STUDENT)) {
             throw new ApiError(HttpStatus.FORBIDDEN, "You aren't allowed to create assignment");
         }
         try {
@@ -95,6 +98,75 @@ public class AssignmentController {
         } catch (Exception e) {
             throw new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Error while fetching assignments: " + e.getMessage());
         }
+    }
+
+    @PutMapping("/update/{id:.+}")
+    public ResponseEntity<ApiResponse> updateAssignments(HttpServletRequest request, @PathVariable Long id ,
+                        @RequestParam("title") @NotBlank(message = "Title is required") @Size(min = 3, max = 50) String title,
+                                                         @RequestParam("description") @NotBlank(message = "Description is required") @Size(min = 10, max = 500) String description,
+                                                         @RequestParam("deadLine") @NotBlank String deadLine,
+                                                         @RequestParam("room") @NotBlank String room,
+                                                         @RequestParam("file") MultipartFile file){
+
+        JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
+        if (jwtPayload == null) {
+            throw new ApiError(HttpStatus.UNAUTHORIZED, "Access token is missing");
+        }
+        User user = userRepository.findByEmail(jwtPayload.getEmail());
+        Role userRole = user.getRole();
+        if (userRole.equals(Role.STUDENT)) {
+            throw new ApiError(HttpStatus.FORBIDDEN, "You aren't allowed to update assignments");
+        }
+        Assignment assignmentExists = assignmentRepository.findById(id).orElseThrow();
+        if(!assignmentExists.getTeacher().getId().equals(user.getId())){
+            throw new ApiError(HttpStatus.FORBIDDEN, "You are not allowed to update assignments"); 
+        }
+        try{
+            String filePath = assignmentService.saveFile(file);
+            Assignment updatedAssignment = assignmentService.updateAssignment(new Assignment(title, description, deadLine, filePath, room, user));
+            return ResponseEntity.ok(new ApiResponse(updatedAssignment));
+
+        }
+        catch(Exception e){
+            throw new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Error while updating assignments: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/single/{id:.+}")
+    public ResponseEntity<ApiResponse> singleAssignment(HttpServletRequest request, @PathVariable Long id){
+        JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
+        if (jwtPayload == null) {
+            throw new ApiError(HttpStatus.UNAUTHORIZED, "Access token is missing");
+        }
+        Assignment assignmentExists = assignmentRepository.findById(id).orElseThrow(()->new ApiError(HttpStatus.NOT_FOUND, "Assignment not found"));
+        User user = userRepository.findByEmail(jwtPayload.getEmail());
+        Role userRole = user.getRole();
+        if(userRole.equals(Role.STUDENT)){
+            throw new ApiError(HttpStatus.FORBIDDEN, "You aren't allowed to view assignment");
+        }
+        if(!assignmentExists.getTeacher().getId().equals(user.getId())){
+            throw new ApiError(HttpStatus.FORBIDDEN, "You are only allowed to view assignments created by you");
+        }
+        return ResponseEntity.ok(new ApiResponse(assignmentExists));
+    }
+
+    @DeleteMapping("/single/{id:.+}")
+    private ResponseEntity<ApiResponse> deleteAssignment(HttpServletRequest request, @PathVariable Long id){
+        JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
+        if (jwtPayload == null) {
+            throw new ApiError(HttpStatus.UNAUTHORIZED, "Access token is missing");
+        }
+        User user = userRepository.findByEmail(jwtPayload.getEmail());
+        Role userRole = user.getRole();
+        if(userRole.equals(Role.STUDENT)){
+            throw new ApiError(HttpStatus.FORBIDDEN, "You aren't allowed to delete assignment");
+        }
+        Assignment assignmentExists = assignmentRepository.findById(id).orElseThrow(()->new ApiError(HttpStatus.NOT_FOUND, "Assignment not found"));
+        if(!assignmentExists.getTeacher().getId().equals(user.getId())){
+            throw new ApiError(HttpStatus.FORBIDDEN, "You are only allowed to delete assignments created by you");
+        }
+        assignmentRepository.delete(assignmentExists);
+        return ResponseEntity.ok(new ApiResponse("Assignment deleted"));
     }
 
     private final Path uploadsFolder = Paths.get("uploads");

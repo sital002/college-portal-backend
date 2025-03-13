@@ -115,7 +115,7 @@ public class AuthController {
 
     public static ResponseCookie generateCookie(String name, String value) {
         return ResponseCookie.from(name, value)
-                .maxAge(60 * 60 * 24)
+                .maxAge(60 * 60 * 24 * 30)
                 .httpOnly(true)
                 .secure(true).sameSite("Lax")
                 .path("/")

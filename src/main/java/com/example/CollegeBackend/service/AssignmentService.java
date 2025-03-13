@@ -44,4 +44,7 @@ public class AssignmentService {
     public List<Assignment> viewAssignments(Long teacherId) {
         return assignmentRepository.findByTeacherId(teacherId);
     }
+    public  Assignment updateAssignment(Assignment assignment) {
+        return assignmentRepository.save(assignment);
+    }
 }
