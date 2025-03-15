@@ -1,7 +1,9 @@
 package com.example.CollegeBackend.controller;
 
 import com.example.CollegeBackend.dto.Role;
+import com.example.CollegeBackend.model.SubmittedAssignment;
 import com.example.CollegeBackend.repository.AssignmentRepository;
+import com.example.CollegeBackend.repository.SubmittedAssignmentRepository;
 import com.example.CollegeBackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -41,6 +43,8 @@ public class AssignmentController {
     private UserRepository userRepository;
     @Autowired
     private AssignmentRepository assignmentRepository;
+    @Autowired
+    private SubmittedAssignmentRepository submittedAssignmentRepository;
 
     @PostMapping("/upload")
     public ResponseEntity<ApiResponse> uploadAssignment(HttpServletRequest request,
@@ -120,7 +124,7 @@ public class AssignmentController {
         }
         Assignment assignmentExists = assignmentRepository.findById(id).orElseThrow();
         if(!assignmentExists.getTeacher().getId().equals(user.getId())){
-            throw new ApiError(HttpStatus.FORBIDDEN, "You are not allowed to update assignments"); 
+            throw new ApiError(HttpStatus.FORBIDDEN, "You are not allowed to update assignments");
         }
         try{
             String filePath = assignmentService.saveFile(file);
@@ -187,6 +191,29 @@ public class AssignmentController {
                     .body(resource);
         } else {
             throw new IOException("File not found");
+        }
+    }
+
+
+    @PostMapping("/submit/{assignmentId:.+}")
+    public ResponseEntity<ApiResponse> submitAssignment(HttpServletRequest request, @RequestParam("room") @NotBlank String room,@RequestParam("file") MultipartFile file , @PathVariable Long assignmentId){
+        JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
+        if (jwtPayload == null) {
+            throw new ApiError(HttpStatus.UNAUTHORIZED, "Access token is missing");
+        }
+        User user = userRepository.findById(jwtPayload.getId()).orElseThrow(()->new ApiError(HttpStatus.NOT_FOUND, "User not found"));
+        if(!user.getRole().equals(Role.STUDENT)){
+            throw new ApiError(HttpStatus.FORBIDDEN, "You aren't allowed to submit assignments");
+        }
+        Assignment assignment = assignmentRepository.findById(assignmentId).orElseThrow(()->new ApiError(HttpStatus.NOT_FOUND, "Assignment not found"));
+
+        try{
+            String assignmentUrl = assignmentService.saveFile(file);
+            SubmittedAssignment newSubmittetdAssignment = submittedAssignmentRepository.save(new SubmittedAssignment(user,assignmentUrl,assignment));
+            return ResponseEntity.ok(new ApiResponse(newSubmittetdAssignment));
+
+        }catch (Exception e){
+            throw new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Error while submitting assignment");
         }
     }
 
