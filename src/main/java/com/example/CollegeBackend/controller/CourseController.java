@@ -16,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/course")
 public class CourseController {
@@ -55,6 +57,33 @@ public class CourseController {
         course.setCourseCode((body.getCousreCode()));
        Course updatedCourse =  courseRepository.save(course);
         return  ResponseEntity.ok(new ApiResponse(updatedCourse));
+    }
+
+    @DeleteMapping("/{id:.+}")
+    public ResponseEntity<ApiResponse> deleteCourse(HttpServletRequest request ,@PathVariable Long id) {
+        JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
+        if(jwtPayload == null) {
+            throw  new ApiError(HttpStatus.UNAUTHORIZED,"Please login first");
+        }
+        if(!jwtPayload.getRole().equals(Role.ADMIN)){
+            throw new ApiError(HttpStatus.UNAUTHORIZED,"You are not allowed to delete course");
+        }
+        Course courseExists = courseRepository.findById(id).orElseThrow(()-> new ApiError(HttpStatus.NOT_FOUND,"Course not found"));
+        courseRepository.deleteById(courseExists.getId());
+        return  ResponseEntity.ok(new ApiResponse("Course deleted Successfully"));
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<ApiResponse> getAllCourses(HttpServletRequest request) {
+        JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
+        if(jwtPayload == null) {
+            throw  new ApiError(HttpStatus.UNAUTHORIZED,"Please login first");
+        }
+        if(!jwtPayload.getRole().equals(Role.ADMIN)){
+            throw new ApiError(HttpStatus.UNAUTHORIZED,"You are not allowed to view courses");
+        }
+        List<Course> courses = (List<Course>) courseRepository.findAll();
+        return  ResponseEntity.ok(new ApiResponse(courses));
     }
 
 }
