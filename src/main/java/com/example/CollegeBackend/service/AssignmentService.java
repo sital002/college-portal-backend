@@ -45,6 +45,7 @@ public class AssignmentService {
         return assignmentRepository.findByTeacherId(teacherId);
     }
     public  Assignment updateAssignment(Assignment assignment) {
+
         return assignmentRepository.save(assignment);
     }
 }

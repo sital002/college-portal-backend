@@ -128,7 +128,12 @@ public class AssignmentController {
         }
         try{
             String filePath = assignmentService.saveFile(file);
-            Assignment updatedAssignment = assignmentService.updateAssignment(new Assignment(title, description, deadLine, filePath, room, user));
+            assignmentExists.setTitle(title);
+            assignmentExists.setDescription(description);
+            assignmentExists.setDeadLine(deadLine);
+            assignmentExists.setRoom(room);
+            assignmentExists.setAttachments(filePath);
+            Assignment updatedAssignment = assignmentService.updateAssignment(assignmentExists);
             return ResponseEntity.ok(new ApiResponse(updatedAssignment));
 
         }

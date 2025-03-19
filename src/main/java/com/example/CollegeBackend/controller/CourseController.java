@@ -14,10 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/course")
@@ -41,6 +38,23 @@ public class CourseController {
         Course newCourse = courseRepository.save(new Course(course.getName(),course.getDescription(),course.getCousreCode()));
         return  ResponseEntity.ok(new ApiResponse(newCourse));
 
+    }
+    @PutMapping("/{id:.+}")
+    public ResponseEntity<ApiResponse> updateCourse(HttpServletRequest request, @RequestBody CourseUpload body ,@PathVariable Long id) {
+        JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
+        if(jwtPayload == null) {
+            throw  new ApiError(HttpStatus.UNAUTHORIZED,"Please login first");
+        }
+        Course course = courseRepository.findById(id).orElseThrow(()-> new ApiError(HttpStatus.NOT_FOUND,"Course not found"));
+        User user = userRepository.findById(jwtPayload.getId()).orElseThrow(()-> new ApiError(HttpStatus.UNAUTHORIZED,"User not found"));
+        if(!user.getRole().equals(Role.ADMIN)){
+            throw new ApiError(HttpStatus.UNAUTHORIZED,"You are not allowed to add course");
+        }
+        course.setName((body.getName()));
+        course.setDescription((body.getDescription()));
+        course.setCourseCode((body.getCousreCode()));
+       Course updatedCourse =  courseRepository.save(course);
+        return  ResponseEntity.ok(new ApiResponse(updatedCourse));
     }
 
 }
