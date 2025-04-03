@@ -6,16 +6,16 @@ import com.example.CollegeBackend.repository.UserRepository;
 import com.example.CollegeBackend.utils.ApiError;
 import com.example.CollegeBackend.utils.JwtUtil;
 import com.example.CollegeBackend.utils.PasswordHasher;
-import org.springframework.http.ResponseCookie;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
@@ -41,10 +41,10 @@ public class AuthController {
 
             String accessToken = JwtUtil.generateToken(payload);
             String refreshToken = JwtUtil.generateToken(payload);
-            ResponseCookie access_cookie = generateCookie("access_token", accessToken);
-            ResponseCookie refresh_cookie = generateCookie("refresh_token", refreshToken);
-            response.addHeader("Set-Cookie", access_cookie.toString());
-            response.addHeader("Set-Cookie", refresh_cookie.toString());
+            Cookie access_cookie = generateCookie("access_token", accessToken);
+            Cookie refresh_cookie = generateCookie("refresh_token", refreshToken);
+            response.addCookie(access_cookie);
+            response.addCookie(refresh_cookie);
             HashMap<String, Object> token = new HashMap<>();
             token.put("access_token", accessToken);
             token.put("refresh_token", refreshToken);
@@ -67,14 +67,13 @@ public class AuthController {
                 throw new ApiError(HttpStatus.NOT_FOUND, "Invalid email or password");
             }
             System.out.println(userExists.getEmail() + " " + userExists.getRole());
-            JwtPayload payload = new JwtPayload(userExists.getEmail(), userExists.getRole(),userExists.getId());
+            JwtPayload payload = new JwtPayload(userExists.getEmail(), userExists.getRole(), userExists.getId());
             String accessToken = JwtUtil.generateToken(payload);
             String refreshToken = JwtUtil.generateToken(payload);
-            ResponseCookie access_cookie = generateCookie("access_token", accessToken);
-            ResponseCookie refresh_cookie = generateCookie("refresh_token", refreshToken);
-            response.addHeader("Set-Cookie", access_cookie.toString());
-            response.addHeader("Set-Cookie", refresh_cookie.toString());
-
+            Cookie access_cookie = generateCookie("access_token", accessToken);
+            Cookie refresh_cookie = generateCookie("refresh_token", refreshToken);
+            response.addCookie(access_cookie);
+            response.addCookie(refresh_cookie);
             HashMap<String, Object> token = new HashMap<>();
             token.put("access_token", accessToken);
             token.put("refresh_token", refreshToken);
@@ -112,12 +111,12 @@ public class AuthController {
 
     }
 
-    public static ResponseCookie generateCookie(String name, String value) {
-        return ResponseCookie.from(name, value)
-                .maxAge(60 * 60 * 24 * 30)
-                .httpOnly(true)
-                .secure(true).sameSite("Lax")
-                .path("/")
-                .build();
+    public static Cookie generateCookie(String name, String value) {
+        Cookie cookie = new Cookie(name, value);
+        cookie.setMaxAge(60 * 60 * 24);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        return cookie;
     }
 }

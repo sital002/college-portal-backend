@@ -91,7 +91,7 @@ public class AssignmentController {
         }
     }
 
-    @GetMapping("/view" )
+    @GetMapping("/view")
     public ResponseEntity<ApiResponse> viewAssignments(HttpServletRequest request) {
         JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
         if (jwtPayload == null) {
@@ -106,12 +106,12 @@ public class AssignmentController {
     }
 
     @PutMapping("/update/{id:.+}")
-    public ResponseEntity<ApiResponse> updateAssignments(HttpServletRequest request, @PathVariable Long id ,
-                        @RequestParam("title") @NotBlank(message = "Title is required") @Size(min = 3, max = 50) String title,
-                                                         @RequestParam("description") @NotBlank(message = "Description is required") @Size(min = 10, max = 500) String description,
-                                                         @RequestParam("deadLine") @NotBlank String deadLine,
-                                                         @RequestParam("room") @NotBlank String room,
-                                                         @RequestParam("file") MultipartFile file){
+    public ResponseEntity<ApiResponse> updateAssignments(HttpServletRequest request, @PathVariable Long id,
+            @RequestParam("title") @NotBlank(message = "Title is required") @Size(min = 3, max = 50) String title,
+            @RequestParam("description") @NotBlank(message = "Description is required") @Size(min = 10, max = 500) String description,
+            @RequestParam("deadLine") @NotBlank String deadLine,
+            @RequestParam("room") @NotBlank String room,
+            @RequestParam("file") MultipartFile file) {
 
         JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
         if (jwtPayload == null) {
@@ -123,10 +123,10 @@ public class AssignmentController {
             throw new ApiError(HttpStatus.FORBIDDEN, "You aren't allowed to update assignments");
         }
         Assignment assignmentExists = assignmentRepository.findById(id).orElseThrow();
-        if(!assignmentExists.getTeacher().getId().equals(user.getId())){
+        if (!assignmentExists.getTeacher().getId().equals(user.getId())) {
             throw new ApiError(HttpStatus.FORBIDDEN, "You are not allowed to update assignments");
         }
-        try{
+        try {
             String filePath = assignmentService.saveFile(file);
             assignmentExists.setTitle(title);
             assignmentExists.setDescription(description);
@@ -136,43 +136,44 @@ public class AssignmentController {
             Assignment updatedAssignment = assignmentService.updateAssignment(assignmentExists);
             return ResponseEntity.ok(new ApiResponse(updatedAssignment));
 
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             throw new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Error while updating assignments: " + e.getMessage());
         }
     }
 
     @GetMapping("/single/{id:.+}")
-    public ResponseEntity<ApiResponse> singleAssignment(HttpServletRequest request, @PathVariable Long id){
+    public ResponseEntity<ApiResponse> singleAssignment(HttpServletRequest request, @PathVariable Long id) {
         JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
         if (jwtPayload == null) {
             throw new ApiError(HttpStatus.UNAUTHORIZED, "Access token is missing");
         }
-        Assignment assignmentExists = assignmentRepository.findById(id).orElseThrow(()->new ApiError(HttpStatus.NOT_FOUND, "Assignment not found"));
+        Assignment assignmentExists = assignmentRepository.findById(id)
+                .orElseThrow(() -> new ApiError(HttpStatus.NOT_FOUND, "Assignment not found"));
         User user = userRepository.findByEmail(jwtPayload.getEmail());
         Role userRole = user.getRole();
-        if(userRole.equals(Role.STUDENT)){
+        if (userRole.equals(Role.STUDENT)) {
             throw new ApiError(HttpStatus.FORBIDDEN, "You aren't allowed to view assignment");
         }
-        if(!assignmentExists.getTeacher().getId().equals(user.getId())){
+        if (!assignmentExists.getTeacher().getId().equals(user.getId())) {
             throw new ApiError(HttpStatus.FORBIDDEN, "You are only allowed to view assignments created by you");
         }
         return ResponseEntity.ok(new ApiResponse(assignmentExists));
     }
 
     @DeleteMapping("/single/{id:.+}")
-    private ResponseEntity<ApiResponse> deleteAssignment(HttpServletRequest request, @PathVariable Long id){
+    private ResponseEntity<ApiResponse> deleteAssignment(HttpServletRequest request, @PathVariable Long id) {
         JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
         if (jwtPayload == null) {
             throw new ApiError(HttpStatus.UNAUTHORIZED, "Access token is missing");
         }
         User user = userRepository.findByEmail(jwtPayload.getEmail());
         Role userRole = user.getRole();
-        if(userRole.equals(Role.STUDENT)){
+        if (userRole.equals(Role.STUDENT)) {
             throw new ApiError(HttpStatus.FORBIDDEN, "You aren't allowed to delete assignment");
         }
-        Assignment assignmentExists = assignmentRepository.findById(id).orElseThrow(()->new ApiError(HttpStatus.NOT_FOUND, "Assignment not found"));
-        if(!assignmentExists.getTeacher().getId().equals(user.getId())){
+        Assignment assignmentExists = assignmentRepository.findById(id)
+                .orElseThrow(() -> new ApiError(HttpStatus.NOT_FOUND, "Assignment not found"));
+        if (!assignmentExists.getTeacher().getId().equals(user.getId())) {
             throw new ApiError(HttpStatus.FORBIDDEN, "You are only allowed to delete assignments created by you");
         }
         assignmentRepository.delete(assignmentExists);
@@ -199,25 +200,29 @@ public class AssignmentController {
         }
     }
 
-
     @PostMapping("/submit/{assignmentId:.+}")
-    public ResponseEntity<ApiResponse> submitAssignment(HttpServletRequest request, @RequestParam("room") @NotBlank String room,@RequestParam("file") MultipartFile file , @PathVariable Long assignmentId){
+    public ResponseEntity<ApiResponse> submitAssignment(HttpServletRequest request,
+            @RequestParam("room") @NotBlank String room, @RequestParam("file") MultipartFile file,
+            @PathVariable Long assignmentId) {
         JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
         if (jwtPayload == null) {
             throw new ApiError(HttpStatus.UNAUTHORIZED, "Access token is missing");
         }
-        User user = userRepository.findById(jwtPayload.getId()).orElseThrow(()->new ApiError(HttpStatus.NOT_FOUND, "User not found"));
-        if(!user.getRole().equals(Role.STUDENT)){
+        User user = userRepository.findById(jwtPayload.getId())
+                .orElseThrow(() -> new ApiError(HttpStatus.NOT_FOUND, "User not found"));
+        if (!user.getRole().equals(Role.STUDENT)) {
             throw new ApiError(HttpStatus.FORBIDDEN, "You aren't allowed to submit assignments");
         }
-        Assignment assignment = assignmentRepository.findById(assignmentId).orElseThrow(()->new ApiError(HttpStatus.NOT_FOUND, "Assignment not found"));
+        Assignment assignment = assignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> new ApiError(HttpStatus.NOT_FOUND, "Assignment not found"));
 
-        try{
+        try {
             String assignmentUrl = assignmentService.saveFile(file);
-            SubmittedAssignment newSubmittetdAssignment = submittedAssignmentRepository.save(new SubmittedAssignment(user,assignmentUrl,assignment));
+            SubmittedAssignment newSubmittetdAssignment = submittedAssignmentRepository
+                    .save(new SubmittedAssignment(user, assignmentUrl, assignment));
             return ResponseEntity.ok(new ApiResponse(newSubmittetdAssignment));
 
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Error while submitting assignment");
         }
     }
