@@ -24,8 +24,12 @@ public class Config {
         registrationBean.addUrlPatterns("/api/v1/*");
         registrationBean.setUrlPatterns(List.of("/api/v1/*"));
         registrationBean.setFilter(new AuthenticationFilter() {
-            @Override
+            @Override   
             protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+                String method = request.getMethod();
+                if ("OPTIONS".equalsIgnoreCase(method)) {
+                    return true; // Allow all preflight requests to skip auth
+                }
                 String path = request.getRequestURI();
                 String[] excludeUrls = {
                         "/api/v1/auth/signin",
