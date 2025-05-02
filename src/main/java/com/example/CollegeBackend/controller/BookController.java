@@ -75,143 +75,6 @@ public class BookController {
         return new ResponseEntity<>(new ApiResponse(bookRepository.findByAvailable(false)), HttpStatus.OK);
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<ApiResponse> searchBooks(HttpServletRequest request, @RequestBody BookRequest book) {
-        JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
-        if (jwtPayload == null) {
-            throw new ApiError(HttpStatus.UNAUTHORIZED, "JWT token is empty");
-        }
-        if (!jwtPayload.getRole().equals(Role.ADMIN)) {
-            throw new ApiError(HttpStatus.UNAUTHORIZED, "You are not authorized to search books");
-        }
-
-        return new ResponseEntity<>(new ApiResponse(bookRepository.findByTitleContainingIgnoreCase(book.getTitle())),
-                HttpStatus.OK);
-    }
-
-    @GetMapping("/search/author")
-    public ResponseEntity<ApiResponse> searchBooksByAuthor(HttpServletRequest request, @RequestBody BookRequest book) {
-        JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
-        if (jwtPayload == null) {
-            throw new ApiError(HttpStatus.UNAUTHORIZED, "JWT token is empty");
-        }
-        if (!jwtPayload.getRole().equals(Role.ADMIN)) {
-            throw new ApiError(HttpStatus.UNAUTHORIZED, "You are not authorized to search books by author");
-        }
-
-        return new ResponseEntity<>(new ApiResponse(bookRepository.findByAuthorContainingIgnoreCase(book.getAuthor())),
-                HttpStatus.OK);
-    }
-
-    @GetMapping("/search/isbn")
-    public ResponseEntity<ApiResponse> searchBooksByIsbn(HttpServletRequest request, @RequestBody BookRequest book) {
-        JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
-        if (jwtPayload == null) {
-            throw new ApiError(HttpStatus.UNAUTHORIZED, "JWT token is empty");
-        }
-        if (!jwtPayload.getRole().equals(Role.ADMIN)) {
-            throw new ApiError(HttpStatus.UNAUTHORIZED, "You are not authorized to search books by isbn");
-        }
-
-        return new ResponseEntity<>(new ApiResponse(bookRepository.findByIsbnContainingIgnoreCase(book.getIsbn())),
-                HttpStatus.OK);
-    }
-
-    @GetMapping("/search/available")
-    public ResponseEntity<ApiResponse> searchAvailableBooks(HttpServletRequest request, @RequestBody BookRequest book) {
-        JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
-        if (jwtPayload == null) {
-            throw new ApiError(HttpStatus.UNAUTHORIZED, "JWT token is empty");
-        }
-        if (!jwtPayload.getRole().equals(Role.ADMIN)) {
-            throw new ApiError(HttpStatus.UNAUTHORIZED, "You are not authorized to search available books");
-        }
-
-        return new ResponseEntity<>(
-                new ApiResponse(bookRepository.findByAvailableAndTitleContainingIgnoreCase(true, book.getTitle())),
-                HttpStatus.OK);
-    }
-
-    @GetMapping("/search/unavailable")
-    public ResponseEntity<ApiResponse> searchUnavailableBooks(HttpServletRequest request,
-            @RequestBody BookRequest book) {
-        JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
-        if (jwtPayload == null) {
-            throw new ApiError(HttpStatus.UNAUTHORIZED, "JWT token is empty");
-        }
-        if (!jwtPayload.getRole().equals(Role.ADMIN)) {
-            throw new ApiError(HttpStatus.UNAUTHORIZED, "You are not authorized to search unavailable books");
-        }
-
-        return new ResponseEntity<>(
-                new ApiResponse(bookRepository.findByAvailableAndTitleContainingIgnoreCase(false, book.getTitle())),
-                HttpStatus.OK);
-    }
-
-    @GetMapping("/search/available/author")
-    public ResponseEntity<ApiResponse> searchAvailableBooksByAuthor(HttpServletRequest request,
-            @RequestBody BookRequest book) {
-        JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
-        if (jwtPayload == null) {
-            throw new ApiError(HttpStatus.UNAUTHORIZED, "JWT token is empty");
-        }
-        if (!jwtPayload.getRole().equals(Role.ADMIN)) {
-            throw new ApiError(HttpStatus.UNAUTHORIZED, "You are not authorized to search available books by author");
-        }
-
-        return new ResponseEntity<>(
-                new ApiResponse(bookRepository.findByAvailableAndAuthorContainingIgnoreCase(true, book.getAuthor())),
-                HttpStatus.OK);
-    }
-
-    @GetMapping("/search/unavailable/author")
-    public ResponseEntity<ApiResponse> searchUnavailableBooksByAuthor(HttpServletRequest request,
-            @RequestBody BookRequest book) {
-        JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
-        if (jwtPayload == null) {
-            throw new ApiError(HttpStatus.UNAUTHORIZED, "JWT token is empty");
-        }
-        if (!jwtPayload.getRole().equals(Role.ADMIN)) {
-            throw new ApiError(HttpStatus.UNAUTHORIZED, "You are not authorized to search unavailable books by author");
-        }
-
-        return new ResponseEntity<>(
-                new ApiResponse(bookRepository.findByAvailableAndAuthorContainingIgnoreCase(false, book.getAuthor())),
-                HttpStatus.OK);
-    }
-
-    @GetMapping("/search/available/isbn")
-    public ResponseEntity<ApiResponse> searchAvailableBooksByIsbn(HttpServletRequest request,
-            @RequestBody BookRequest book) {
-        JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
-        if (jwtPayload == null) {
-            throw new ApiError(HttpStatus.UNAUTHORIZED, "JWT token is empty");
-        }
-        if (!jwtPayload.getRole().equals(Role.ADMIN)) {
-            throw new ApiError(HttpStatus.UNAUTHORIZED, "You are not authorized to search available books by isbn");
-        }
-
-        return new ResponseEntity<>(
-                new ApiResponse(bookRepository.findByAvailableAndIsbnContainingIgnoreCase(true, book.getIsbn())),
-                HttpStatus.OK);
-    }
-
-    @GetMapping("/search/unavailable/isbn")
-    public ResponseEntity<ApiResponse> searchUnavailableBooksByIsbn(HttpServletRequest request,
-            @RequestBody BookRequest book) {
-        JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
-        if (jwtPayload == null) {
-            throw new ApiError(HttpStatus.UNAUTHORIZED, "JWT token is empty");
-        }
-        if (!jwtPayload.getRole().equals(Role.ADMIN)) {
-            throw new ApiError(HttpStatus.UNAUTHORIZED, "You are not authorized to search unavailable books by isbn");
-        }
-
-        return new ResponseEntity<>(
-                new ApiResponse(bookRepository.findByAvailableAndIsbnContainingIgnoreCase(false, book.getIsbn())),
-                HttpStatus.OK);
-    }
-
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<ApiResponse> deleteBookById(HttpServletRequest request, @PathVariable Long id) {
         JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
@@ -228,6 +91,36 @@ public class BookController {
 
         bookRepository.deleteById((id));
         return new ResponseEntity<>(new ApiResponse("Book deleted successfully"), HttpStatus.OK);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse> searchBooks(HttpServletRequest request,
+            @RequestParam(value = "query", required = false) String query,
+            @RequestParam(value = "author", required = false) String author,
+            @RequestParam(value = "isbn", required = false) String isbn,
+            @RequestParam(value = "available", required = false) Boolean available) {
+        JwtPayload jwtPayload = (JwtPayload) request.getAttribute("jwtPayload");
+        if (jwtPayload == null) {
+            throw new ApiError(HttpStatus.UNAUTHORIZED, "JWT token is empty");
+        }
+        if (!jwtPayload.getRole().equals(Role.ADMIN)) {
+            throw new ApiError(HttpStatus.UNAUTHORIZED, "You are not authorized to search books");
+        }
+
+        if (query != null) {
+            return new ResponseEntity<>(new ApiResponse(bookRepository.findByTitleContainingIgnoreCase(query)),
+                    HttpStatus.OK);
+        } else if (author != null) {
+            return new ResponseEntity<>(new ApiResponse(bookRepository.findByAuthorContainingIgnoreCase(author)),
+                    HttpStatus.OK);
+        } else if (isbn != null) {
+            return new ResponseEntity<>(new ApiResponse(bookRepository.findByIsbnContainingIgnoreCase(isbn)),
+                    HttpStatus.OK);
+        } else if (available != null) {
+            return new ResponseEntity<>(new ApiResponse(bookRepository.findByAvailable(available)), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(new ApiResponse("No search criteria provided"), HttpStatus.BAD_REQUEST);
     }
 
 }
